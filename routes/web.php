@@ -1,6 +1,11 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Frontend\PageController;
+use App\Http\Controllers\Auth\AdminLoginController;
+use App\Http\Controllers\Backend\DashboardController;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,10 +18,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/',[PageController::class,'index']);
+Route::get('admin/login',[AdminLoginController::class,'showLoginForm']);
+Route::post('admin/login',[AdminLoginController::class,'login'])->name('admin-login');
+Route::get('admin/register',[AdminLoginController::class,'showRegisterForm']);
+Route::post('admin/register',[AdminLoginController::class,'register'])->name('admin-register');
+
+Route::prefix('admin')->middleware('auth:admin_user')->group(function(){
+    Route::get('/',function(){
+        return "admin home page";
+    });
+    Route::get('/',[DashboardController::class,'Dashboard'])->name('dashboard');
+});
+
+
