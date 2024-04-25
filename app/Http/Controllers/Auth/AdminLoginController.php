@@ -32,7 +32,7 @@ class AdminLoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/admin';
+    protected $redirectTo = '/backend';
 
     /**
      * Create a new controller instance.
@@ -86,19 +86,4 @@ class AdminLoginController extends Controller
      * @param  array  $data
      * @return \App\Models\User
      */
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required',
-            'phone' => 'required',
-            'password' => 'required'
-        ]);
-        AdminUser::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-        ]);
-    }
 }

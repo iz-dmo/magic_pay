@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Http\Controllers\Controller;
+use App\Models\AdminUser;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 
 class DashboardController extends Controller
 {
@@ -11,4 +13,6 @@ class DashboardController extends Controller
     {
         return view('backend.home');
     }
+
+    
 }
