@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\AdminUser;
 use Illuminate\Http\Request;
+use Jenssegers\Agent\Agent;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class AdminLoginController extends Controller
@@ -86,4 +87,17 @@ class AdminLoginController extends Controller
      * @param  array  $data
      * @return \App\Models\User
      */
+
+     protected function authenticated(Request $request, $user)
+     {
+        $user->ip = $request->ip();
+        $agent = new Agent();
+
+        $device = $agent->device();
+        $platform = $agent->platform();
+        $browser = $agent->browser();
+        $user->user_agent = $platform.'-'.$device.'-'. $browser;
+        $user->update();
+        return redirect($this->redirectTo);
+     }
 }

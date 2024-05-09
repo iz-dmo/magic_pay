@@ -4,15 +4,24 @@ namespace App\Http\Controllers\Backend;
 
 use App\Models\AdminUser;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
+use Jenssegers\Agent\Facades\Agent;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Yajra\DataTables\Contracts\DataTable;
 
 class AdminUserController extends Controller
 {
     Public function AdminList()
     {
-        $admin_users = AdminUser::all();
+        $admin_users = AdminUser::whereNotIn('id',[auth()->id()])->get();
         return view('backend.admin-managements.index',compact('admin_users'));
+    }
+
+    public function RegisterPage()
+    {
+        return view('backend.admin-managements.create');
     }
 
     public function AdminRegister(Request $request)
@@ -21,7 +30,8 @@ class AdminUserController extends Controller
             'name' => 'required',
             'email' => 'required|email',
             'phone' => 'required',
-            'password' => 'required|min:6|max:20'
+            'password' => 'required|min:6|max:20',
+            'password_confirmation' => 'required|same:password'
         ]);
         $admin_user_email = AdminUser::where('email',$request->email)->first();
         $admin_user_phone = AdminUser::where('phone',$request->phone)->first();

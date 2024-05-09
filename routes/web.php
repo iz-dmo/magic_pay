@@ -30,7 +30,9 @@ Route::post('admin/login',[AdminLoginController::class,'login'])->name('admin-lo
 
 Route::prefix('backend')->middleware('auth:admin_user')->group(function(){
     Route::get('/',[DashboardController::class,'Dashboard'])->name('dashboard');
+    // admin crud path
     Route::get('admin-managements', [AdminUserController::class, 'AdminList'])->name('admin-managements');
+    Route::get('admin-register',[AdminUserController::class,"RegisterPage"])->name('admin-register');
     Route::post('admin-register',[AdminUserController::class,"AdminRegister"])->name('admin-register');
     Route::get('admin-users-edit/{id}',[AdminUserController::class,"AdminEdit"])->name('admin-users-edit');
     Route::post('admin-users-update/{id}',[AdminUserController::class,"AdminUpdate"])->name('admin-users-update');
