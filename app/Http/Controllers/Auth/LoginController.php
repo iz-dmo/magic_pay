@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Jenssegers\Agent\Agent;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -46,5 +48,19 @@ class LoginController extends Controller
     public function showLoginForm()
     {
         return view('auth.login');
+    }
+
+    protected function authenticated(Request $request, $user)
+    {
+        $user->ip = $request->ip();
+        $agent = new Agent();
+
+        $device = $agent->device();
+        $platform = $agent->platform();
+        $browser = $agent->browser();
+        $user->user_agent = $platform.'-'.$device.'-'. $browser;
+        $user->login_at = date("d-m-Y H:i:s");
+        $user->update();
+        return redirect($this->redirectTo);
     }
 }

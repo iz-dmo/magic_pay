@@ -26,13 +26,7 @@ class AdminUserController extends Controller
 
     public function AdminRegister(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-            'phone' => 'required',
-            'password' => 'required|min:6|max:20',
-            'password_confirmation' => 'required|same:password'
-        ]);
+        $this->CheckValidate($request);
         $admin_user_email = AdminUser::where('email',$request->email)->first();
         $admin_user_phone = AdminUser::where('phone',$request->phone)->first();
         if($admin_user_email || $admin_user_phone){
@@ -55,8 +49,20 @@ class AdminUserController extends Controller
 
     public function AdminUpdate(Request $request,$id)
     {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|unique:users,email,'.$id,  
+            'phone' => 'required|unique:users,phone,'.$id,
+            'password' => 'required|min:6|max:20',
+            'password_confirmation' => 'required|same:password'
+        ]);
         $admin_user = AdminUser::findOrFail($id);
-        $admin_user->update($request->all());
+        $admin_user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password)
+        ]);
         return redirect()->route('admin-managements')->with('success_msg',"Updating Success");
     }
 
@@ -65,5 +71,16 @@ class AdminUserController extends Controller
         $user = AdminUser::findOrFail($id);
         $user->delete();
         return redirect()->route('admin-managements')->with('success_msg',"Deleting Success");
+    }
+
+    private function CheckValidate(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required',
+            'password' => 'required|min:6|max:20',
+            'password_confirmation' => 'required|same:password'
+        ]);
     }
 }

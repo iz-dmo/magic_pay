@@ -8,7 +8,7 @@
                 <div class="card-header"><b>Admin Register</b></div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('admin-register') }}">
+                    <form method="POST" action="{{ route('admin-submit') }}">
                         @csrf
 
                         <div class="row mb-3">
@@ -88,4 +88,16 @@
         </div>
     </div>
 </div>
+@endsection
+@section('script')
+    @if(session('error_msg'))
+        <script>
+            $(document).ready(function(){
+                Swal.fire({
+                    icon: 'warning',
+                    title: '{{ session('error_msg') }}',
+                });
+            });
+        </script>
+    @endif
 @endsection

@@ -11,8 +11,8 @@
 @section('content')
  <div class="container">
     <div class="d-flex justify-content-between">
-        <h5 class="text-start text-primary">Admin-User Lists</h5>
-        <a class="btn btn-primary mb-3" href="{{route('admin-register')}}"><i class="fa fa-circle-plus"></i> Create</a>
+        <h5 class="text-start text-primary">User Lists</h5>
+        <a class="btn btn-primary mb-3" href="{{route('users.create')}}"><i class="fa fa-circle-plus"></i> Create</a>
     </div>
     <div class="card p-3">
         <div class="card-content">
@@ -22,19 +22,19 @@
                         <th data-orderable="false">Name</th>
                         <th>Email</th>
                         <th data-orderable="false">Phone</th>
-                        <th data-orderable="false">IP</th>
                         <th data-orderable="false">User Agent</th>
+                        <th data-orderable="false">Login At</th>
                         <th data-orderable="false">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($admin_users as $user)
+                    @foreach($users as $user)
                         <tr>
                             <td>{{$user->name}}</td>
                             <td>{{$user->email}}</td>
                             <td>{{$user->phone}}</td>
-                            <td>{{$user->ip}}</td>
                             <td>{{$user->user_agent}}</td>
+                            <td>{{$user->login_at}}</td>
                             <td>
                                 <button class="btn btn-outline-warning" data-toggle="modal" data-target="#EditModal-{{$user->id}}">Edit</button>
                                 <button class="btn btn-outline-danger" data-toggle="modal" data-target="#DeleteModal-{{$user->id}}">Delete</button>
@@ -55,7 +55,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-danger" data-dismiss="modal" title="Close">Close</button>
-                                        <a href="{{route('admin-users-edit',$user->id)}}" class="btn btn-dark">Yes</a>
+                                        <a href="{{route('users.edit',$user->id)}}" class="btn btn-dark">Yes</a>
                                     </div>
                                 </div>
                             </div>
@@ -63,12 +63,12 @@
                         {{-- delete modal --}}
                         <div class="modal fade" id="DeleteModal-{{$user->id}}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-sm modal-dialog-centered">
-                                <form action="{{route('admin-users-delete',$user->id)}}" method="POST">
+                                <form action="{{route('users.destroy',$user->id)}}" method="POST">
                                     @method('DELETE')
                                     @csrf
                                     <div class="modal-content modal-background">
                                         <div class="modal-header text-center">
-                                            <h5 class="modal-title w-100 model-label">Delete Admin - <strong>{{ $user->name }}</strong></h5>
+                                            <h5 class="modal-title w-100 model-label">Delete User - <strong>{{ $user->name }}</strong></h5>
                                             <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
@@ -91,8 +91,8 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
-                        <th>IP</th>
                         <th>User Agent</th>
+                        <th>Login At</th>
                         <th>Action</th>
                     </tr>
                 </tfoot>

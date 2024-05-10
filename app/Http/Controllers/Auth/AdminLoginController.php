@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\AdminUser;
-use Illuminate\Http\Request;
 use Jenssegers\Agent\Agent;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -81,6 +82,40 @@ class AdminLoginController extends Controller
         return $this->sendFailedLoginResponse($request);
     }
 
+    public function Register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required',
+            'password' => 'required|min:6|max:20',
+            'password_confirmation' => 'required|same:password'
+        ]);
+        $admin_user_email = AdminUser::where('email',$request->email)->first();
+        $admin_user_phone = AdminUser::where('phone',$request->phone)->first();
+        if($admin_user_email || $admin_user_phone){
+            return redirect()->back()->with('error_msg',"Your Email or Phone is already taken!Please Try Again");
+        }
+        $agent = new Agent();
+
+        $device = $agent->device();
+        $platform = $agent->platform();
+        $browser = $agent->browser();
+        $user_agent = $platform.'-'.$device.'-'. $browser;
+        $user = AdminUser::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'ip' => $request->ip(),
+            'user_agent' => $user_agent,
+            'password' => Hash::make($request->password),
+        ]);
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        return redirect($this->redirectTo);
+    }
     /**
      * Create a new user instance after a valid registration.
      *
@@ -88,8 +123,8 @@ class AdminLoginController extends Controller
      * @return \App\Models\User
      */
 
-     protected function authenticated(Request $request, $user)
-     {
+    protected function authenticated(Request $request, $user)
+    {
         $user->ip = $request->ip();
         $agent = new Agent();
 
@@ -99,5 +134,5 @@ class AdminLoginController extends Controller
         $user->user_agent = $platform.'-'.$device.'-'. $browser;
         $user->update();
         return redirect($this->redirectTo);
-     }
+    }
 }
