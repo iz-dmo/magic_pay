@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\Helpers\Generate;
 use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 
@@ -47,14 +50,30 @@ class UserController extends Controller
         if($user_phone){
             return redirect()->back()->with('error_msg',"Phone is already taken!");
         }
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password),
+            ]);
+            Wallet::firstOrCreate(
+                [
+                'user_id' => $user->id
+                ],
+                [
+                'account_number' => Generate::accountNumber(),
+                'amount' => 0
+                ]
+            );
+            DB::commit();
+            return redirect()->route('users.index')->with("success_msg","New User Created.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with("error_msg","Something went Wrong!");
+        }
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-        ]);
-        return redirect()->route('users.index')->with("success_msg","New User Created.");
     }
 
     /**
@@ -81,13 +100,29 @@ class UserController extends Controller
     {
         $this->CheckValidate($request,$id);
         $user = User::findOrFail($id);
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password)
-        ]);
-        return redirect()->route('users.index')->with('success_msg',"Updating Success");
+        DB::beginTransaction();
+        try {
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password)
+            ]);
+            Wallet::firstOrCreate(
+                [
+                'user_id' => $user->id
+                ],
+                [
+                'account_number' => Generate::accountNumber(),
+                'amount' => 0
+                ]
+            );
+            DB::commit();
+            return redirect()->route('users.index')->with('success_msg',"Updating Success");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with("error_msg","Something went Wrong!");        
+        }
     }
 
     /**

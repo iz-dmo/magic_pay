@@ -59,7 +59,7 @@ class LoginController extends Controller
         $platform = $agent->platform();
         $browser = $agent->browser();
         $user->user_agent = $platform.'-'.$device.'-'. $browser;
-        $user->login_at = date("d-m-Y H:i:s");
+        $user->login_at = date("Y-m-d H:i:s");
         $user->update();
         return redirect($this->redirectTo);
     }
